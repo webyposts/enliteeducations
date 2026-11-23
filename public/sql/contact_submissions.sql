@@ -1,8 +1,5 @@
-CREATE DATABASE IF NOT EXISTS enliteeducations
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE enliteeducations;
+﻿-- Select your database first (phpMyAdmin: click it in the left list), then import/run this file.
+-- Local XAMPP: create a database named enliteeducations first.
 
 CREATE TABLE IF NOT EXISTS contact_submissions (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
