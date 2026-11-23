@@ -1,4 +1,4 @@
-﻿# Enlite Educations SPA â€” Apache / XAMPP at the site root
+# Enlite Educations SPA — Apache / XAMPP at the site root
 
 DirectoryIndex index.html
 
@@ -32,4 +32,3 @@ Options -MultiViews
     Header set Cache-Control "no-cache, no-store, must-revalidate"
   </FilesMatch>
 </IfModule>
-
