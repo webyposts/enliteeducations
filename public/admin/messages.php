@@ -15,7 +15,7 @@ if (isset($_GET['logout'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
-    if (hash_equals((string) $config['admin_password'], (string) $_POST['password'])) {
+    if ($config['admin_password'] !== 'CHANGE_ME' && hash_equals((string) $config['admin_password'], (string) $_POST['password'])) {
         $_SESSION['enlite_admin'] = true;
         header('Location: messages.php');
         exit;

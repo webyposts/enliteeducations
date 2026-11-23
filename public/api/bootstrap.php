@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 header('X-Content-Type-Options: nosniff');
 
-$config = require __DIR__ . '/config.php';
+// config.php is local-only (git-ignored); on servers fall back to the placeholder
+// template and let config.local.php (created on the server) override it.
+$base = is_file(__DIR__ . '/config.php') ? __DIR__ . '/config.php' : __DIR__ . '/config.example.php';
+$config = require $base;
 $local = __DIR__ . '/config.local.php';
 if (is_file($local)) {
     $config = array_merge($config, require $local);
