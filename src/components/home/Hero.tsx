@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Sparkles } from "lucide-react";
+import { usePdfViewer } from "@/components/pdf/PdfViewerContext";
+import { CATALOGUE_TITLE, cataloguePdfUrl } from "@/lib/pdfProxy";
 
 const Hero = () => {
+  const { openPdf } = usePdfViewer();
+
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
       {/* Background Gradient */}
@@ -41,6 +45,24 @@ const Hero = () => {
             </Button>
             <Button asChild size="lg" variant="outline" className="min-w-[200px]">
               <Link to="/contact">Contact Us</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="min-w-[200px]">
+              <Link to="/download-app">Download App</Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="min-w-[200px]"
+              onClick={() =>
+                openPdf({
+                  title: CATALOGUE_TITLE,
+                  pdfUrl: cataloguePdfUrl(),
+                  slug: "catalogue",
+                })
+              }
+            >
+              <BookOpen className="mr-2 h-5 w-5" />
+              Check our catalogue
             </Button>
           </div>
 

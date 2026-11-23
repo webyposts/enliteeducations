@@ -1,68 +1,105 @@
+import { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { books } from "@/data/books";
-import { BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
+import {
+  groupByGrade,
+  loadBookCatalog,
+  type GradeFolder,
+} from "@/lib/enliteBooks";
+import { usePdfViewer } from "@/components/pdf/PdfViewerContext";
 
 const Catalog = () => {
+  const [folders, setFolders] = useState<GradeFolder[]>([]);
+  const { openPdf } = usePdfViewer();
+
+  useEffect(() => {
+    loadBookCatalog().then((catalog) => {
+      setFolders(groupByGrade(catalog.books, catalog.gradeOrder));
+    });
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-primary-light via-background to-accent-light">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Book Catalog</h1>
               <p className="text-lg text-muted-foreground">
-                Explore our comprehensive collection of textbooks and learning materials
+                Sample textbooks from the live Enlite library, organised by class folder.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Books Grid */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {books.map((book) => (
-                <Card key={book.id} className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
-                  <CardHeader>
-                    {/* Book Cover Placeholder */}
-                    <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center mb-4">
-                      <BookOpen className="h-16 w-16 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{book.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-2 text-sm">
-                      <Badge variant="secondary">{book.grade}</Badge>
-                      <Badge variant="outline">{book.subject}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{book.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {book.tags.map((tag, index) => (
-                        <Badge key={index} variant="default" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Note */}
-            <div className="max-w-4xl mx-auto mt-12 p-6 rounded-lg bg-muted border border-border text-center">
-              <p className="text-sm text-muted-foreground">
-                This is a sample selection from our catalog. We have 200+ titles covering all grades and subjects.
-                <br />
-                <span className="font-semibold text-foreground">
-                  Contact us to request a complete catalog or discuss custom content needs.
-                </span>
-              </p>
-            </div>
+        <section className="py-16">
+          <div className="container mx-auto px-4 max-w-6xl space-y-14">
+            {folders.map((folder) => (
+              <div key={folder.slug}>
+                <div className="flex items-baseline justify-between mb-6">
+                  <h2 className="text-2xl md:text-3xl font-bold">{folder.name}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {folder.books.length} sample book{folder.books.length === 1 ? "" : "s"}
+                  </p>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {folder.books.map((book) => (
+                    <article
+                      key={book.id}
+                      className="rounded-xl border-2 border-border bg-card overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all"
+                    >
+                      <div className="aspect-[3/4] bg-muted">
+                        {book.coverUrl ? (
+                          <img
+                            src={book.coverUrl}
+                            alt={book.title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="p-4 space-y-3">
+                        <div className="flex gap-2">
+                          <Badge variant="secondary">{book.grade}</Badge>
+                          <Badge variant="outline">{book.subject}</Badge>
+                        </div>
+                        <h3 className="text-lg font-semibold">{book.title}</h3>
+                        {book.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-3">
+                            {book.description}
+                          </p>
+                        )}
+                        {book.pdfUrl ? (
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              openPdf({
+                                title: book.title,
+                                pdfUrl: book.pdfUrl,
+                                slug: book.slug,
+                              })
+                            }
+                          >
+                            <FileText className="h-4 w-4" />
+                            View sample PDF
+                          </Button>
+                        ) : (
+                          <Button asChild size="sm" variant="outline">
+                            <a href={book.appUrl} target="_blank" rel="noreferrer">
+                              Open on app
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       </main>

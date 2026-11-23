@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // XAMPP serves this under http://localhost/enliteeducations/
+  base: process.env.VITE_BASE || "/enliteeducations/",
   server: {
     host: "::",
     port: 8080,

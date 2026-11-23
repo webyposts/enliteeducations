@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { BookOpen, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import enliteLogo from "@/assets/enlite-logo.png";
+import { usePdfViewer } from "@/components/pdf/PdfViewerContext";
+import { CATALOGUE_TITLE, cataloguePdfUrl } from "@/lib/pdfProxy";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { openPdf } = usePdfViewer();
+
+  const openCatalogue = () => {
+    openPdf({
+      title: CATALOGUE_TITLE,
+      pdfUrl: cataloguePdfUrl(),
+      slug: "catalogue",
+    });
+    setIsOpen(false);
+  };
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -14,6 +26,7 @@ const Navbar = () => {
     { name: "Solutions", path: "/solutions" },
     { name: "Catalog", path: "/catalog" },
     { name: "Resources", path: "/blog" },
+    { name: "Download App", path: "/download-app" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -41,6 +54,13 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={openCatalogue}
+              className="text-sm font-medium text-primary hover:text-accent transition-colors"
+            >
+              Check our catalogue
+            </button>
             <Button asChild variant="default" size="sm">
               <Link to="/contact">Get Started</Link>
             </Button>
@@ -69,6 +89,14 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={openCatalogue}
+              className="flex items-center gap-2 py-2 text-sm font-medium text-primary"
+            >
+              <BookOpen className="h-4 w-4" />
+              Check our catalogue
+            </button>
             <Button asChild variant="default" size="sm" className="w-full mt-4">
               <Link to="/contact" onClick={() => setIsOpen(false)}>
                 Get Started

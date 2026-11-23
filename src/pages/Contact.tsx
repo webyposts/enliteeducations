@@ -7,10 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { BookOpen, Mail, MapPin, Phone } from "lucide-react";
+import { usePdfViewer } from "@/components/pdf/PdfViewerContext";
+import { CATALOGUE_TITLE, cataloguePdfUrl } from "@/lib/pdfProxy";
 
 const Contact = () => {
   const { toast } = useToast();
+  const { openPdf } = usePdfViewer();
   const [formData, setFormData] = useState({
     name: "",
     role: "",
@@ -19,27 +22,42 @@ const Contact = () => {
     phone: "",
     message: "",
   });
+  const [sending, setSending] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Log form data to console (in production, this would send to backend)
-    console.log("Contact Form Submission:", formData);
-    
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
-    });
-
-    // Reset form
-    setFormData({
-      name: "",
-      role: "",
-      organization: "",
-      email: "",
-      phone: "",
-      message: "",
-    });
+    setSending(true);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/contact.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload.ok) {
+        throw new Error(payload.error || "Could not send your message.");
+      }
+      toast({
+        title: "Message received",
+        description: "Your enquiry is saved for the Enlite team. We will reply by email.",
+      });
+      setFormData({
+        name: "",
+        role: "",
+        organization: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+    } catch (err) {
+      toast({
+        title: "Could not send",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -54,6 +72,22 @@ const Contact = () => {
               <p className="text-lg text-muted-foreground">
                 Let's discuss how Enlite Education can support your institution's learning goals
               </p>
+              <div className="mt-6">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  onClick={() =>
+                    openPdf({
+                      title: CATALOGUE_TITLE,
+                      pdfUrl: cataloguePdfUrl(),
+                      slug: "catalogue",
+                    })
+                  }
+                >
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Check our catalogue
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -142,9 +176,12 @@ const Contact = () => {
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full">
-                    Send Message
+                  <Button type="submit" size="lg" className="w-full" disabled={sending}>
+                    {sending ? "Sending…" : "Send Message"}
                   </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Your message is stored for the Enlite team and we reply to the email you enter.
+                  </p>
                 </form>
               </div>
 

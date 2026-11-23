@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { BookOpen, Mail, MapPin, Phone } from "lucide-react";
 import enliteLogo from "@/assets/enlite-logo.png";
+import { usePdfViewer } from "@/components/pdf/PdfViewerContext";
+import { CATALOGUE_TITLE, cataloguePdfUrl } from "@/lib/pdfProxy";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { openPdf } = usePdfViewer();
 
   return (
     <footer className="bg-secondary border-t border-border">
@@ -46,6 +49,27 @@ const Footer = () => {
                 <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Resources
                 </Link>
+              </li>
+              <li>
+                <Link to="/download-app" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Download App
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() =>
+                    openPdf({
+                      title: CATALOGUE_TITLE,
+                      pdfUrl: cataloguePdfUrl(),
+                      slug: "catalogue",
+                    })
+                  }
+                  className="inline-flex items-center gap-1 text-sm text-primary hover:text-accent transition-colors"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Check our catalogue
+                </button>
               </li>
             </ul>
           </div>
